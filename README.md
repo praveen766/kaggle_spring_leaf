@@ -28,4 +28,4 @@ Direct offers provide huge value to customers who need them, and are a fundament
 Using a large set of anonymized features, Springleaf is asking you to predict which customers will respond to a direct mail offer. You are challenged to construct new meta-variables and employ feature-selection methods to approach this dauntingly wide dataset.
 
 ##Hardware resources:
-Can utilize the Script section of Kaggle , since there is a memory limit, the model can only be built on a sample of data. for more retails look at https://www.kaggle.com/c/springleaf-marketing-response/scripts
+Can utilize the Script section of Kaggle , since there is a memory limit, the model can only be built on a sample of data. for more details look at https://www.kaggle.com/c/springleaf-marketing-response/scripts
