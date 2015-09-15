@@ -2811,7 +2811,7 @@ train_model, val_model = train_test_split(train_data_model, test_size=0.20, rand
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c">##modeling </span>
 <span class="c">### importing libraries</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">ensemble</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">ensemble</span> <span class="c"># for RandomForest</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">cross_validation</span>
 </pre></div>
@@ -2823,16 +2823,30 @@ train_model, val_model = train_test_split(train_data_model, test_size=0.20, rand
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[141]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c">## classifiers</span>
+<span class="n">rf</span><span class="o">=</span><span class="n">ensemble</span><span class="o">.</span><span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">9876</span><span class="p">,</span><span class="n">n_jobs</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span> <span class="c">## random forest</span>
+<span class="n">ab</span><span class="o">=</span><span class="n">ensemble</span><span class="o">.</span><span class="n">AdaBoostClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c">## adaboost</span>
+<span class="n">gb</span><span class="o">=</span><span class="n">ensemble</span><span class="o">.</span><span class="n">GradientBoostingClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="c">## gradient boosting</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[118]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c">### putting it all together in a function</span>
-
-<span class="c">## Random forest Model</span>
-<span class="k">def</span> <span class="nf">rf_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">,</span> <span class="n">test_ds</span><span class="p">):</span>
+<span class="c"># model function</span>
+<span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">clfr</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">,</span> <span class="n">test_ds</span><span class="p">):</span> <span class="c">## parameters classifier, feature matrix,target, train_dataset, val_dataset, test_dataset</span>
     
-    <span class="c">## initial random forest classifier with full train data</span>
-    <span class="n">clf</span> <span class="o">=</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">9876</span><span class="p">,</span><span class="n">n_jobs</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">clf</span> <span class="o">=</span> <span class="n">clfr</span> <span class="c">## Classifier(any of the classifier)</span>
     <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">],</span> <span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
     
     <span class="c">## predicting class on train ,val and test</span>
@@ -2953,21 +2967,57 @@ train_model, val_model = train_test_split(train_data_model, test_size=0.20, rand
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[123]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional variables</span>
-<span class="n">X</span><span class="o">=</span><span class="n">model_features_add</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_rf_add1</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<div class=" highlight hl-ipython2"><pre><span class="c">## model Execution function</span>
+<span class="k">def</span> <span class="nf">model_execution</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">clfr</span><span class="p">):</span> <span class="c">#paramters: feature matrix, classifier</span>
+    <span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
+    <span class="n">t_start</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">model_result</span><span class="o">=</span><span class="n">model</span><span class="p">(</span><span class="n">clfr</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
+    <span class="n">t_end</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">t_diff</span><span class="o">=</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span>
+    <span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">t_diff</span> <span class="c">## tells the model running time in seconds</span>
+    <span class="k">return</span> <span class="n">model_result</span> 
+</pre></div>
 
-<span class="n">rf_add1</span><span class="o">=</span><span class="n">rf_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
+</div>
+</div>
+</div>
 
-<span class="n">t1_rf_add1</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[135]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c">## model Results printing function</span>
+<span class="k">def</span> <span class="nf">model_results_print</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
+    <span class="k">print</span> <span class="n">model_name</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
+    <span class="k">print</span> <span class="n">model_name</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">print</span> <span class="n">model_name</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">print</span> <span class="n">model_name</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">model_name</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+</pre></div>
 
-<span class="n">delta_t_rf_add1</span><span class="o">=</span><span class="n">t1_rf_add1</span><span class="o">-</span><span class="n">t0_rf_add1</span>
+</div>
+</div>
+</div>
 
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_rf_add1</span>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[128]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">rf_add1</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">model_features_add</span><span class="p">,</span><span class="n">rf</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -2980,7 +3030,7 @@ train_model, val_model = train_test_split(train_data_model, test_size=0.20, rand
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  99.4066720009
+<pre>running time in seconds :  100.164944887
 </pre>
 </div>
 </div>
@@ -2991,21 +3041,10 @@ train_model, val_model = train_test_split(train_data_model, test_size=0.20, rand
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
+<div class="prompt input_prompt">In&nbsp;[136]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">rf_add1</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3050,7 +3089,7 @@ Val AUC: 0.758227445
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[56]:</div>
+<div class="prompt input_prompt">In&nbsp;[130]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;v_imp_df&#39;</span><span class="p">]</span>
@@ -3064,7 +3103,7 @@ Val AUC: 0.758227445
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[56]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[130]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div style="max-height:1000px;max-width:1500px;overflow:auto;">
@@ -3396,64 +3435,12 @@ Val AUC: 0.758227445
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[57]:</div>
+<div class="prompt input_prompt">In&nbsp;[143]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c">## creating a second features from only the important variables from First features which has importance &gt;1%</span>
 <span class="n">fet_add2</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;v_imp_df&#39;</span><span class="p">][</span><span class="s">&#39;v_imp_names&#39;</span><span class="p">][</span><span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;v_imp_df&#39;</span><span class="p">][</span><span class="s">&#39;v_imp_values&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mf">0.001</span><span class="p">])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[58]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">len</span><span class="p">(</span><span class="n">fet_add2</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[58]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>286</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[59]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional variables reduced features based on Variable importance factor</span>
-<span class="n">X</span><span class="o">=</span><span class="n">fet_add2</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_rf_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">rf_add2</span><span class="o">=</span><span class="n">rf_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
-
-<span class="n">t1_rf_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">delta_t_rf_add2</span><span class="o">=</span><span class="n">t1_rf_add2</span><span class="o">-</span><span class="n">t0_rf_add2</span>
-
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_rf_add2</span>
+<span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">fet_add2</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3466,7 +3453,7 @@ Val AUC: 0.758227445
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  31.516409874
+<pre>286
 </pre>
 </div>
 </div>
@@ -3477,21 +3464,37 @@ Val AUC: 0.758227445
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[124]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">rf_add2</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">fet_add2</span><span class="p">,</span><span class="n">rf</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>running time in seconds :  31.2543671131
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[137]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">rf_add2</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3536,64 +3539,12 @@ Val AUC: 0.757914140271
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[61]:</div>
+<div class="prompt input_prompt">In&nbsp;[142]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c">## creating a third features from only the important variables from second set of features </span>
 <span class="n">fet_add3</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;v_imp_df&#39;</span><span class="p">][</span><span class="s">&#39;v_imp_names&#39;</span><span class="p">][</span><span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;v_imp_df&#39;</span><span class="p">][</span><span class="s">&#39;v_imp_values&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mf">0.003</span><span class="p">])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[62]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="nb">len</span><span class="p">(</span><span class="n">fet_add3</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[62]:</div>
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>227</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[63]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional variables reduced features based on Variable importance factor</span>
-<span class="n">X</span><span class="o">=</span><span class="n">fet_add3</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_rf_add3</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">rf_add3</span><span class="o">=</span><span class="n">rf_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
-
-<span class="n">t1_rf_add3</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">delta_t_rf_add3</span><span class="o">=</span><span class="n">t1_rf_add3</span><span class="o">-</span><span class="n">t0_rf_add3</span>
-
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_rf_add3</span>
+<span class="k">print</span> <span class="nb">len</span><span class="p">(</span><span class="n">fet_add3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3606,7 +3557,7 @@ Val AUC: 0.757914140271
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  30.1826281548
+<pre>227
 </pre>
 </div>
 </div>
@@ -3617,21 +3568,37 @@ Val AUC: 0.757914140271
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[64]:</div>
+<div class="prompt input_prompt">In&nbsp;[126]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">rf_add3</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">fet_add3</span><span class="p">,</span><span class="n">rf</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>running time in seconds :  29.9091420174
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[138]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">rf_add3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3674,249 +3641,12 @@ Val AUC: 0.758390178356
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Submission-based-on-Random-forest-model">Submission based on Random forest model<a class="anchor-link" href="#Submission-based-on-Random-forest-model">&#182;</a></h2>
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[85]:</div>
+<div class="prompt input_prompt">In&nbsp;[144]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## Final submission </span>
-<span class="n">sub_rf</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rf_add3</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_rf</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_rf</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;rf_submission_1.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[86]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## Initial submission using all variables</span>
-<span class="n">sub_rf1</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rf_add1</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_rf1</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_rf1</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;rf_submission_init.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[87]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## submission based on fet2 variables</span>
-<span class="n">sub_rf2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rf_add2</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_rf2</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_rf2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;rf_submission_fet2.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="End-of-submission">End of submission<a class="anchor-link" href="#End-of-submission">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<!--- ! unzip sample_submission.csv.zip -->
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="----------------------------------------------------">----------------------------------------------------<a class="anchor-link" href="#----------------------------------------------------">&#182;</a></h3>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="ADABOOST">ADABOOST<a class="anchor-link" href="#ADABOOST">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[68]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># Adaboost</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">AdaBoostClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
-<span class="c">### putting it all together in a function for the Submission</span>
-
-
-<span class="k">def</span> <span class="nf">ab_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">,</span><span class="n">test_ds</span><span class="p">):</span>
-    
-    <span class="c">## initial  classifier with full train data</span>
-    <span class="n">clf</span> <span class="o">=</span> <span class="n">AdaBoostClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">],</span> <span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
-    
-    <span class="c">## predicting class on train ,val and test</span>
-    <span class="n">train_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">val_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">test_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-
-    <span class="c">## predicting probabilities on train, val  and test</span>
-    <span class="n">train_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">val_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">test_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-
-
-    <span class="c">##taking the probabilities for predicted class=1 (2 nd column in the array)</span>
-    <span class="n">train_pred_prob</span><span class="o">=</span><span class="n">train_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">val_pred_prob</span><span class="o">=</span><span class="n">val_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">test_pred_prob</span><span class="o">=</span><span class="n">test_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    
-    <span class="c">#cf table</span>
-    <span class="n">cf_mat_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">train_pred_class</span><span class="p">,</span> <span class="n">rownames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;actual&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;preds&#39;</span><span class="p">])</span>
-    <span class="n">cf_mat_val</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">val_pred_class</span><span class="p">,</span> <span class="n">rownames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;actual&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;preds&#39;</span><span class="p">])</span>
-    
-    <span class="c">## train metrics</span>
-    <span class="n">train_err</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">## error rate</span>
-    <span class="n">train_acc</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">## accuracy</span>
-    <span class="n">train_recall</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###recall  or hit rate or tpr or sensitivity</span>
-    <span class="n">train_spc</span><span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">##tnr or specificity</span>
-    <span class="n">train_prec</span><span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">### precision  or positive predicted value(ppv) </span>
-    <span class="n">train_npv</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###negative predicted value</span>
-    <span class="n">train_fpr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false positive rate or fall out  </span>
-    <span class="n">train_fdr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false discovery rate</span>
-    <span class="n">train_fnr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false negative rate</span>
-    <span class="n">train_f1score</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">train_recall</span><span class="o">*</span><span class="n">train_prec</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">train_recall</span><span class="o">+</span><span class="n">train_prec</span><span class="p">)</span>
-
-    <span class="c">## val metrics</span>
-    
-    <span class="n">val_err</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">## error rate</span>
-    <span class="n">val_acc</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">## accuracy</span>
-    <span class="n">val_recall</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###recall  or hit rate or tpr or sensitivity</span>
-    <span class="n">val_spc</span><span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">##tnr or specificity</span>
-    <span class="n">val_prec</span><span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">### precision  or positive predicted value(ppv) </span>
-    <span class="n">val_npv</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###negative predicted value</span>
-    <span class="n">val_fpr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false positive rate or fall out  </span>
-    <span class="n">val_fdr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false discovery rate</span>
-    <span class="n">val_fnr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false negative rate</span>
-    <span class="n">val_f1score</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">val_recall</span><span class="o">*</span><span class="n">val_prec</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">val_recall</span><span class="o">+</span><span class="n">val_prec</span><span class="p">)</span>
-    
-    
-    <span class="n">train_met_dict</span><span class="o">=</span><span class="p">{</span>
-        <span class="s">&quot;accuracy&quot;</span><span class="p">:</span><span class="n">train_acc</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="n">train_err</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;precision&quot;</span><span class="p">:</span><span class="n">train_prec</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;recall&quot;</span><span class="p">:</span><span class="n">train_recall</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FDR&quot;</span><span class="p">:</span><span class="n">train_fdr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FNR&quot;</span><span class="p">:</span><span class="n">train_fnr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;F1 SCORE&quot;</span><span class="p">:</span><span class="n">train_f1score</span><span class="o">*</span><span class="mi">100</span>
-    <span class="p">}</span>
-
-    <span class="n">val_met_dict</span><span class="o">=</span><span class="p">{</span>
-        <span class="s">&quot;accuracy&quot;</span><span class="p">:</span><span class="n">val_acc</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="n">val_err</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;precision&quot;</span><span class="p">:</span><span class="n">val_prec</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;recall&quot;</span><span class="p">:</span><span class="n">val_recall</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FDR&quot;</span><span class="p">:</span><span class="n">val_fdr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FNR&quot;</span><span class="p">:</span><span class="n">val_fnr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;F1 SCORE&quot;</span><span class="p">:</span><span class="n">val_f1score</span><span class="o">*</span><span class="mi">100</span>
-    <span class="p">}</span>
-    
-
-    <span class="c">## feature importance</span>
-    <span class="n">feat_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c">## sorting the indices of feature importance in decending order</span>
-    <span class="n">fet_imp</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">[</span><span class="n">feat_index</span><span class="p">]</span> <span class="c">##using the descending sorted index and arranging the feature importance array </span>
-    
-    <span class="n">fet_imp_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">feat_index</span><span class="p">]</span> <span class="c">## collecting the feature names from the index</span>
-    
-    <span class="c">##Putting the sorted feature importance and feature names in a dataframe</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;v_imp_names&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fet_imp_names</span><span class="p">),</span>
-         <span class="s">&#39;v_imp_values&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fet_imp</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="n">v_imp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    
-    <span class="c">#train AUC</span>
-    <span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">,</span> <span class="n">thresholds_train</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">train_pred_prob</span><span class="p">)</span>
-    <span class="n">roc_auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
-
-    <span class="c">#val AUC</span>
-    <span class="n">fpr_val</span><span class="p">,</span> <span class="n">tpr_val</span><span class="p">,</span> <span class="n">thresholds_val</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">val_pred_prob</span><span class="p">)</span>
-    <span class="n">roc_auc_val</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_val</span><span class="p">,</span> <span class="n">tpr_val</span><span class="p">)</span>
-    
-    
-    <span class="n">ret_dict</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;train_pred_class&quot;</span><span class="p">:</span><span class="n">train_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;test_pred_class&quot;</span><span class="p">:</span><span class="n">test_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;val_pred_class&quot;</span><span class="p">:</span><span class="n">val_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;train_pred_prob&quot;</span><span class="p">:</span><span class="n">train_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;test_pred_prob&quot;</span><span class="p">:</span><span class="n">test_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;val_pred_prob&quot;</span><span class="p">:</span><span class="n">val_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;cf_mat_train&quot;</span><span class="p">:</span><span class="n">cf_mat_train</span>
-              <span class="p">,</span><span class="s">&quot;cf_mat_val&quot;</span><span class="p">:</span><span class="n">cf_mat_val</span>
-              <span class="p">,</span><span class="s">&quot;train_met_dict&quot;</span><span class="p">:</span><span class="n">train_met_dict</span>
-              <span class="p">,</span><span class="s">&quot;val_met_dict&quot;</span><span class="p">:</span><span class="n">val_met_dict</span>
-              <span class="p">,</span><span class="s">&quot;v_imp_df&quot;</span><span class="p">:</span><span class="n">v_imp_df</span>
-              <span class="p">,</span><span class="s">&quot;train_auc&quot;</span><span class="p">:</span><span class="n">roc_auc_train</span>
-              <span class="p">,</span><span class="s">&quot;train_fpr_auc&quot;</span><span class="p">:</span><span class="n">fpr_train</span>
-              <span class="p">,</span><span class="s">&quot;train_tpr_auc&quot;</span><span class="p">:</span><span class="n">tpr_train</span>
-              <span class="p">,</span><span class="s">&quot;train_thresholds_auc&quot;</span><span class="p">:</span><span class="n">thresholds_train</span>
-              <span class="p">,</span><span class="s">&quot;val_auc&quot;</span><span class="p">:</span><span class="n">roc_auc_val</span>
-              <span class="p">,</span><span class="s">&quot;val_fpr_auc&quot;</span><span class="p">:</span><span class="n">fpr_val</span>
-              <span class="p">,</span><span class="s">&quot;val_tpr_auc&quot;</span><span class="p">:</span><span class="n">tpr_val</span>
-              <span class="p">,</span><span class="s">&quot;val_thresholds_auc&quot;</span><span class="p">:</span><span class="n">thresholds_val</span>
-             <span class="p">}</span>
-    <span class="k">return</span> <span class="n">ret_dict</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[69]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional variables reduced features based on Variable importance factor</span>
-<span class="n">X</span><span class="o">=</span><span class="n">fet_add2</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_ab_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">ab_add2</span><span class="o">=</span><span class="n">ab_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
-
-<span class="n">t1_ab_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">delta_t_ab_add2</span><span class="o">=</span><span class="n">t1_ab_add2</span><span class="o">-</span><span class="n">t0_ab_add2</span>
-
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_ab_add2</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">ab_add1</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">model_features_add</span><span class="p">,</span><span class="n">ab</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3929,7 +3659,7 @@ Val AUC: 0.758390178356
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  274.36123991
+<pre>running time in seconds :  1097.93255997
 </pre>
 </div>
 </div>
@@ -3940,21 +3670,85 @@ Val AUC: 0.758390178356
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[70]:</div>
+<div class="prompt input_prompt">In&nbsp;[145]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">ab_add1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>VAL_CM:
+preds       0     1
+actual             
+0       21068  1284
+1        4827  1868
+TRAIN_CM:
+preds       0     1
+actual             
+0       84062  5044
+1       19494  7584
+
+
+{&apos;FNR&apos;: 72.098581030619869, &apos;recall&apos;: 27.901418969380131, &apos;precision&apos;: 59.263959390862944, &apos;FDR&apos;: 40.736040609137056, &apos;F1 SCORE&apos;: 37.940489489184522, &apos;error&apos;: 21.038317210038905, &apos;accuracy&apos;: 78.961682789961102}
+
+
+{&apos;FNR&apos;: 71.992023044538001, &apos;recall&apos;: 28.007976955461999, &apos;precision&apos;: 60.057016154577127, &apos;FDR&apos;: 39.942983845422866, &apos;F1 SCORE&apos;: 38.200775701405334, &apos;error&apos;: 21.119947669214351, &apos;accuracy&apos;: 78.880052330785659}
+
+
+Train AUC: 0.77170970539
+
+
+Val AUC: 0.761990292599
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[132]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">ab_add2</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">fet_add2</span><span class="p">,</span><span class="n">ab</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>running time in seconds :  271.779658079
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[139]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">ab_add2</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -3999,205 +3793,10 @@ Val AUC: 0.756701306491
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[74]:</div>
+<div class="prompt input_prompt">In&nbsp;[146]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## submission based on fet2 variables</span>
-<span class="n">sub_ab2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ab_add2</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_ab2</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_ab2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;ab_submission_fet2.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre> 
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre> 
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="GRADIENT-BOOSTING">GRADIENT BOOSTING<a class="anchor-link" href="#GRADIENT-BOOSTING">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[75]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># Gardient Boosting</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
-<span class="c">### putting it all together in a function for the Submission</span>
-
-
-<span class="k">def</span> <span class="nf">gb_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">,</span><span class="n">test_ds</span><span class="p">):</span>
-    
-    <span class="c">## initial  classifier with full train data</span>
-    <span class="n">clf</span> <span class="o">=</span> <span class="n">GradientBoostingClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">],</span> <span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">])</span>
-    
-    <span class="c">## predicting class on train ,val and test</span>
-    <span class="n">train_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">val_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">test_pred_class</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-
-    <span class="c">## predicting probabilities on train, val  and test</span>
-    <span class="n">train_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">val_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-    <span class="n">test_pred_prob</span><span class="o">=</span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">test_ds</span><span class="p">[</span><span class="n">X</span><span class="p">])</span>
-
-
-    <span class="c">##taking the probabilities for predicted class=1 (2 nd column in the array)</span>
-    <span class="n">train_pred_prob</span><span class="o">=</span><span class="n">train_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">val_pred_prob</span><span class="o">=</span><span class="n">val_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">test_pred_prob</span><span class="o">=</span><span class="n">test_pred_prob</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
-    
-    <span class="c">#cf table</span>
-    <span class="n">cf_mat_train</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">train_pred_class</span><span class="p">,</span> <span class="n">rownames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;actual&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;preds&#39;</span><span class="p">])</span>
-    <span class="n">cf_mat_val</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">val_pred_class</span><span class="p">,</span> <span class="n">rownames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;actual&#39;</span><span class="p">],</span> <span class="n">colnames</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;preds&#39;</span><span class="p">])</span>
-    
-    <span class="c">## train metrics</span>
-    <span class="n">train_err</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">## error rate</span>
-    <span class="n">train_acc</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">## accuracy</span>
-    <span class="n">train_recall</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###recall  or hit rate or tpr or sensitivity</span>
-    <span class="n">train_spc</span><span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">##tnr or specificity</span>
-    <span class="n">train_prec</span><span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">### precision  or positive predicted value(ppv) </span>
-    <span class="n">train_npv</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###negative predicted value</span>
-    <span class="n">train_fpr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false positive rate or fall out  </span>
-    <span class="n">train_fdr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false discovery rate</span>
-    <span class="n">train_fnr</span> <span class="o">=</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false negative rate</span>
-    <span class="n">train_f1score</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">train_recall</span><span class="o">*</span><span class="n">train_prec</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">train_recall</span><span class="o">+</span><span class="n">train_prec</span><span class="p">)</span>
-
-    <span class="c">## val metrics</span>
-    
-    <span class="n">val_err</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">## error rate</span>
-    <span class="n">val_acc</span><span class="o">=</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">## accuracy</span>
-    <span class="n">val_recall</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###recall  or hit rate or tpr or sensitivity</span>
-    <span class="n">val_spc</span><span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>  <span class="c">##tnr or specificity</span>
-    <span class="n">val_prec</span><span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">### precision  or positive predicted value(ppv) </span>
-    <span class="n">val_npv</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">###negative predicted value</span>
-    <span class="n">val_fpr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false positive rate or fall out  </span>
-    <span class="n">val_fdr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false discovery rate</span>
-    <span class="n">val_fnr</span> <span class="o">=</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">cf_mat_val</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="c">###false negative rate</span>
-    <span class="n">val_f1score</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">val_recall</span><span class="o">*</span><span class="n">val_prec</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">val_recall</span><span class="o">+</span><span class="n">val_prec</span><span class="p">)</span>
-    
-    
-    <span class="n">train_met_dict</span><span class="o">=</span><span class="p">{</span>
-        <span class="s">&quot;accuracy&quot;</span><span class="p">:</span><span class="n">train_acc</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="n">train_err</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;precision&quot;</span><span class="p">:</span><span class="n">train_prec</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;recall&quot;</span><span class="p">:</span><span class="n">train_recall</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FDR&quot;</span><span class="p">:</span><span class="n">train_fdr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FNR&quot;</span><span class="p">:</span><span class="n">train_fnr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;F1 SCORE&quot;</span><span class="p">:</span><span class="n">train_f1score</span><span class="o">*</span><span class="mi">100</span>
-    <span class="p">}</span>
-
-    <span class="n">val_met_dict</span><span class="o">=</span><span class="p">{</span>
-        <span class="s">&quot;accuracy&quot;</span><span class="p">:</span><span class="n">val_acc</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;error&quot;</span><span class="p">:</span><span class="n">val_err</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;precision&quot;</span><span class="p">:</span><span class="n">val_prec</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;recall&quot;</span><span class="p">:</span><span class="n">val_recall</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FDR&quot;</span><span class="p">:</span><span class="n">val_fdr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;FNR&quot;</span><span class="p">:</span><span class="n">val_fnr</span><span class="o">*</span><span class="mi">100</span>
-        <span class="p">,</span><span class="s">&quot;F1 SCORE&quot;</span><span class="p">:</span><span class="n">val_f1score</span><span class="o">*</span><span class="mi">100</span>
-    <span class="p">}</span>
-    
-
-    <span class="c">## feature importance</span>
-    <span class="n">feat_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c">## sorting the indices of feature importance in decending order</span>
-    <span class="n">fet_imp</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">[</span><span class="n">feat_index</span><span class="p">]</span> <span class="c">##using the descending sorted index and arranging the feature importance array </span>
-    
-    <span class="n">fet_imp_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">feat_index</span><span class="p">]</span> <span class="c">## collecting the feature names from the index</span>
-    
-    <span class="c">##Putting the sorted feature importance and feature names in a dataframe</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;v_imp_names&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fet_imp_names</span><span class="p">),</span>
-         <span class="s">&#39;v_imp_values&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">fet_imp</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="n">v_imp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    
-    <span class="c">#train AUC</span>
-    <span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">,</span> <span class="n">thresholds_train</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">train_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">train_pred_prob</span><span class="p">)</span>
-    <span class="n">roc_auc_train</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_train</span><span class="p">,</span> <span class="n">tpr_train</span><span class="p">)</span>
-
-    <span class="c">#val AUC</span>
-    <span class="n">fpr_val</span><span class="p">,</span> <span class="n">tpr_val</span><span class="p">,</span> <span class="n">thresholds_val</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">val_ds</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">val_pred_prob</span><span class="p">)</span>
-    <span class="n">roc_auc_val</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr_val</span><span class="p">,</span> <span class="n">tpr_val</span><span class="p">)</span>
-    
-    
-    <span class="n">ret_dict</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;train_pred_class&quot;</span><span class="p">:</span><span class="n">train_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;test_pred_class&quot;</span><span class="p">:</span><span class="n">test_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;val_pred_class&quot;</span><span class="p">:</span><span class="n">val_pred_class</span>
-              <span class="p">,</span><span class="s">&quot;train_pred_prob&quot;</span><span class="p">:</span><span class="n">train_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;test_pred_prob&quot;</span><span class="p">:</span><span class="n">test_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;val_pred_prob&quot;</span><span class="p">:</span><span class="n">val_pred_prob</span>
-              <span class="p">,</span><span class="s">&quot;cf_mat_train&quot;</span><span class="p">:</span><span class="n">cf_mat_train</span>
-              <span class="p">,</span><span class="s">&quot;cf_mat_val&quot;</span><span class="p">:</span><span class="n">cf_mat_val</span>
-              <span class="p">,</span><span class="s">&quot;train_met_dict&quot;</span><span class="p">:</span><span class="n">train_met_dict</span>
-              <span class="p">,</span><span class="s">&quot;val_met_dict&quot;</span><span class="p">:</span><span class="n">val_met_dict</span>
-              <span class="p">,</span><span class="s">&quot;v_imp_df&quot;</span><span class="p">:</span><span class="n">v_imp_df</span>
-              <span class="p">,</span><span class="s">&quot;train_auc&quot;</span><span class="p">:</span><span class="n">roc_auc_train</span>
-              <span class="p">,</span><span class="s">&quot;train_fpr_auc&quot;</span><span class="p">:</span><span class="n">fpr_train</span>
-              <span class="p">,</span><span class="s">&quot;train_tpr_auc&quot;</span><span class="p">:</span><span class="n">tpr_train</span>
-              <span class="p">,</span><span class="s">&quot;train_thresholds_auc&quot;</span><span class="p">:</span><span class="n">thresholds_train</span>
-              <span class="p">,</span><span class="s">&quot;val_auc&quot;</span><span class="p">:</span><span class="n">roc_auc_val</span>
-              <span class="p">,</span><span class="s">&quot;val_fpr_auc&quot;</span><span class="p">:</span><span class="n">fpr_val</span>
-              <span class="p">,</span><span class="s">&quot;val_tpr_auc&quot;</span><span class="p">:</span><span class="n">tpr_val</span>
-              <span class="p">,</span><span class="s">&quot;val_thresholds_auc&quot;</span><span class="p">:</span><span class="n">thresholds_val</span>
-             <span class="p">}</span>
-    <span class="k">return</span> <span class="n">ret_dict</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional variables</span>
-<span class="n">X</span><span class="o">=</span><span class="n">model_features_add</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_gb_add1</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">gb_add1</span><span class="o">=</span><span class="n">gb_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
-
-<span class="n">t1_gb_add1</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">delta_t_gb_add1</span><span class="o">=</span><span class="n">t1_gb_add1</span><span class="o">-</span><span class="n">t0_gb_add1</span>
-
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_gb_add1</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">gb_add1</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">model_features_add</span><span class="p">,</span><span class="n">gb</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -4210,7 +3809,7 @@ Val AUC: 0.756701306491
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  2124.63983703
+<pre>running time in seconds :  2121.87442589
 </pre>
 </div>
 </div>
@@ -4221,21 +3820,10 @@ Val AUC: 0.756701306491
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[147]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">gb_add1</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -4269,7 +3857,7 @@ actual
 Train AUC: 0.783130785001
 
 
-Val AUC: 0.769751743173
+Val AUC: 0.769760129596
 </pre>
 </div>
 </div>
@@ -4280,37 +3868,10 @@ Val AUC: 0.769751743173
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[81]:</div>
+<div class="prompt input_prompt">In&nbsp;[148]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## submission based on initial + additional variables</span>
-<span class="n">sub_gb1</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gb_add1</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_gb1</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_gb1</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;gb_submission_init.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[76]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c"># with additional varigbles reduced features based on Varigble importance factor</span>
-<span class="n">X</span><span class="o">=</span><span class="n">fet_add2</span>
-<span class="n">y</span><span class="o">=</span><span class="s">&#39;target&#39;</span>
-<span class="n">t0_gb_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">gb_add2</span><span class="o">=</span><span class="n">gb_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">train_add_model</span><span class="p">,</span><span class="n">val_add_model</span><span class="p">,</span><span class="n">test_add</span><span class="p">)</span>
-
-<span class="n">t1_gb_add2</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
-<span class="n">delta_t_gb_add2</span><span class="o">=</span><span class="n">t1_gb_add2</span><span class="o">-</span><span class="n">t0_gb_add2</span>
-
-<span class="k">print</span> <span class="s">&quot;running time in seconds : &quot;</span><span class="p">,</span> <span class="n">delta_t_gb_add2</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">gb_add2</span><span class="o">=</span><span class="n">model_execution</span><span class="p">(</span><span class="n">fet_add2</span><span class="p">,</span><span class="n">gb</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -4323,7 +3884,7 @@ Val AUC: 0.769751743173
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>running time in seconds :  376.233737946
+<pre>running time in seconds :  381.045587063
 </pre>
 </div>
 </div>
@@ -4334,21 +3895,10 @@ Val AUC: 0.769751743173
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[77]:</div>
+<div class="prompt input_prompt">In&nbsp;[149]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="k">print</span> <span class="s">&quot;VAL_CM:&quot;</span>
-<span class="k">print</span> <span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_val&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;TRAIN_CM:&quot;</span>
-<span class="k">print</span> <span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;cf_mat_train&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;val_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;train_met_dict&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Train AUC:&quot;</span><span class="p">,</span> <span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;train_auc&#39;</span><span class="p">]</span>
-<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-<span class="k">print</span> <span class="s">&quot;Val AUC:&quot;</span><span class="p">,</span><span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;val_auc&#39;</span><span class="p">]</span>
+<div class=" highlight hl-ipython2"><pre><span class="n">model_results_print</span><span class="p">(</span><span class="n">gb_add2</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -4391,21 +3941,603 @@ Val AUC: 0.766460660259
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Submissions-based-on-single-Ensemble-learners">Submissions based on single Ensemble learners<a class="anchor-link" href="#Submissions-based-on-single-Ensemble-learners">&#182;</a></h2>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[78]:</div>
+<div class="prompt input_prompt">In&nbsp;[154]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span class="c">## submission based on fet2 variables</span>
-<span class="n">sub_gb2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gb_add2</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">sub_gb2</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
-<span class="n">sub_gb2</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;gb_submission_fet2.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<div class=" highlight hl-ipython2"><pre><span class="k">def</span> <span class="nf">submission</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">modelname</span><span class="p">):</span> <span class="c"># filename as string, modelname</span>
+    <span class="n">sub</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">test_add</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">],</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">modelname</span><span class="p">[</span><span class="s">&#39;test_pred_prob&#39;</span><span class="p">])],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c"># renaming columns</span>
+    <span class="n">sub</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
+    <span class="n">sub</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
 </pre></div>
 
 </div>
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[155]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c">## random forest submsissions</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;rf_submission_init&#39;</span><span class="p">,</span><span class="n">rf_add1</span><span class="p">)</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;rf_submission_fet2&#39;</span><span class="p">,</span><span class="n">rf_add2</span><span class="p">)</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;rf_submission_fet3&#39;</span><span class="p">,</span><span class="n">rf_add3</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[156]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># adaboost submissions</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;ab_submission_init&#39;</span><span class="p">,</span><span class="n">ab_add1</span><span class="p">)</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;ab_submission_fet2&#39;</span><span class="p">,</span><span class="n">ab_add2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[157]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># gradient boosting Submissions</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;gb_submission_init&#39;</span><span class="p">,</span><span class="n">gb_add1</span><span class="p">)</span>
+<span class="n">submission</span><span class="p">(</span><span class="s">&#39;gb_submission_fet2&#39;</span><span class="p">,</span><span class="n">gb_add2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<!--- ! unzip sample_submission.csv.zip -->
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Submission-based-on-average-of-ensemble-Learners">Submission based on average of ensemble Learners<a class="anchor-link" href="#Submission-based-on-average-of-ensemble-Learners">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[104]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># Average of Ensenmble models of gb1,gb2,rf1 and ab2</span>
+<span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">sub_gb1</span>
+               <span class="p">,</span><span class="n">sub_gb2</span><span class="p">[[</span><span class="s">&#39;target&#39;</span><span class="p">]]</span>
+               <span class="p">,</span><span class="n">sub_rf1</span><span class="p">[[</span><span class="s">&#39;target&#39;</span><span class="p">]]</span>
+               <span class="p">,</span><span class="n">sub_ab2</span><span class="p">[[</span><span class="s">&#39;target&#39;</span><span class="p">]]</span>
+              <span class="p">,],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[106]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">.</span><span class="n">shape</span> <span class="p">,</span> <span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[106]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>((145232, 5),
+ Index([u&apos;ID&apos;, u&apos;target&apos;, u&apos;target&apos;, u&apos;target&apos;, u&apos;target&apos;], dtype=&apos;object&apos;))</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[107]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">.</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target_gb1&#39;</span><span class="p">,</span><span class="s">&#39;target_gb2&#39;</span><span class="p">,</span><span class="s">&#39;target_rf1&#39;</span><span class="p">,</span><span class="s">&#39;target_ab2&#39;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[108]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[108]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Index([u&apos;ID&apos;, u&apos;target_gb1&apos;, u&apos;target_gb2&apos;, u&apos;target_rf1&apos;, u&apos;target_ab2&apos;], dtype=&apos;object&apos;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[109]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[</span><span class="s">&#39;fin_target&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[</span><span class="s">&#39;target_gb1&#39;</span><span class="p">]</span> <span class="o">+</span> \
+<span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[</span><span class="s">&#39;target_gb2&#39;</span><span class="p">]</span><span class="o">+</span>\
+<span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[</span><span class="s">&#39;target_rf1&#39;</span><span class="p">]</span><span class="o">+</span>\
+<span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[</span><span class="s">&#39;target_ab2&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">4</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[110]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_4_ensemble</span><span class="o">=</span><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="p">[[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;fin_target&#39;</span><span class="p">]]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[114]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1_ab2</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[114]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div style="max-height:1000px;max-width:1500px;overflow:auto;">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ID</th>
+      <th>target_gb1</th>
+      <th>target_gb2</th>
+      <th>target_rf1</th>
+      <th>target_ab2</th>
+      <th>fin_target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>  1</td>
+      <td> 0.395877</td>
+      <td> 0.399252</td>
+      <td> 0.32</td>
+      <td> 0.498047</td>
+      <td> 0.403294</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>  3</td>
+      <td> 0.445973</td>
+      <td> 0.496540</td>
+      <td> 0.47</td>
+      <td> 0.499084</td>
+      <td> 0.477899</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>  6</td>
+      <td> 0.343666</td>
+      <td> 0.370207</td>
+      <td> 0.27</td>
+      <td> 0.498254</td>
+      <td> 0.370532</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>  9</td>
+      <td> 0.158421</td>
+      <td> 0.160151</td>
+      <td> 0.24</td>
+      <td> 0.496178</td>
+      <td> 0.263687</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td> 10</td>
+      <td> 0.501431</td>
+      <td> 0.525782</td>
+      <td> 0.62</td>
+      <td> 0.500014</td>
+      <td> 0.536807</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[112]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_4_ensemble</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span><span class="p">[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;target&#39;</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[115]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_4_ensemble</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;mean_gb1_gb2_rf1_ab2_submission.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[89]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="c"># Average of Ensenmble models of rf1,gb1 an gb2</span>
+<span class="n">sub_mean_gb1_gb2_rf1</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">sub_gb1</span>
+                  <span class="p">,</span><span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">sub_gb2</span>
+                            <span class="p">,</span><span class="n">sub_rf1</span>
+                            <span class="p">,</span><span class="n">left_on</span><span class="o">=</span><span class="s">&#39;ID&#39;</span>
+                            <span class="p">,</span><span class="n">right_on</span><span class="o">=</span><span class="s">&#39;ID&#39;</span>
+                            <span class="p">,</span><span class="n">how</span><span class="o">=</span><span class="s">&#39;inner&#39;</span><span class="p">)</span>
+                 <span class="p">,</span><span class="n">left_on</span><span class="o">=</span><span class="s">&#39;ID&#39;</span>
+                 <span class="p">,</span><span class="n">right_on</span><span class="o">=</span><span class="s">&#39;ID&#39;</span>
+                 <span class="p">,</span><span class="n">how</span><span class="o">=</span><span class="s">&#39;inner&#39;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[91]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">sub_mean_gb1_gb2_rf1</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[91]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>((145232, 4),
+ Index([u&apos;ID&apos;, u&apos;target&apos;, u&apos;target_x&apos;, u&apos;target_y&apos;], dtype=&apos;object&apos;))</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[92]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1</span><span class="p">[</span><span class="s">&#39;fin_target&#39;</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="n">sub_mean_gb1_gb2_rf1</span><span class="p">[</span><span class="s">&#39;target&#39;</span><span class="p">]</span> <span class="o">+</span> \
+<span class="n">sub_mean_gb1_gb2_rf1</span><span class="p">[</span><span class="s">&#39;target_x&#39;</span><span class="p">]</span><span class="o">+</span>\
+<span class="n">sub_mean_gb1_gb2_rf1</span><span class="p">[</span><span class="s">&#39;target_y&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">3</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[93]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[93]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Index([u&apos;ID&apos;, u&apos;target&apos;, u&apos;target_x&apos;, u&apos;target_y&apos;, u&apos;fin_target&apos;], dtype=&apos;object&apos;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[94]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean_gb1_gb2_rf1</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[94]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div style="max-height:1000px;max-width:1500px;overflow:auto;">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ID</th>
+      <th>target</th>
+      <th>target_x</th>
+      <th>target_y</th>
+      <th>fin_target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>  1</td>
+      <td> 0.395877</td>
+      <td> 0.399252</td>
+      <td> 0.32</td>
+      <td> 0.371710</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>  3</td>
+      <td> 0.445973</td>
+      <td> 0.496540</td>
+      <td> 0.47</td>
+      <td> 0.470838</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>  6</td>
+      <td> 0.343666</td>
+      <td> 0.370207</td>
+      <td> 0.27</td>
+      <td> 0.327958</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>  9</td>
+      <td> 0.158421</td>
+      <td> 0.160151</td>
+      <td> 0.24</td>
+      <td> 0.186190</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td> 10</td>
+      <td> 0.501431</td>
+      <td> 0.525782</td>
+      <td> 0.62</td>
+      <td> 0.549071</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[95]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean</span><span class="o">=</span><span class="n">sub_mean_gb1_gb2_rf1</span><span class="p">[[</span><span class="s">&#39;ID&#39;</span><span class="p">,</span><span class="s">&#39;fin_target&#39;</span><span class="p">]]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[101]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span> <span class="p">{</span><span class="s">&#39;fin_target&#39;</span><span class="p">:</span><span class="s">&#39;target&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python2.7/site-packages/pandas/core/frame.py:2417: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  **kwargs)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[102]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">sub_mean</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[102]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>((145232, 2), Index([u&apos;ID&apos;, u&apos;target&apos;], dtype=&apos;object&apos;))</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[103]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython2"><pre><span class="n">sub_mean</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">&#39;mean_gb1_gb2_rf1_submission.csv&#39;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="------------------------------------END-------------------------">------------------------------------END-------------------------<a class="anchor-link" href="#------------------------------------END-------------------------">&#182;</a></h2>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">

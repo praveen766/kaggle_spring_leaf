@@ -538,20 +538,26 @@ print len(model_features_add)-len(model_features)
 
 ##modeling 
 ### importing libraries
-from sklearn import ensemble
+from sklearn import ensemble # for RandomForest
 from sklearn.metrics import roc_curve, auc
 from sklearn import cross_validation
 
 
-# In[53]:
+# In[141]:
+
+## classifiers
+rf=ensemble.RandomForestClassifier(n_estimators=100,random_state=9876,n_jobs=16) ## random forest
+ab=ensemble.AdaBoostClassifier(n_estimators=100) ## adaboost
+gb=ensemble.GradientBoostingClassifier(n_estimators=100) ## gradient boosting
+
+
+# In[118]:
 
 ### putting it all together in a function
-
-## Random forest Model
-def rf_model(X,y,train_ds, val_ds, test_ds):
+# model function
+def model(clfr,X,y,train_ds, val_ds, test_ds): ## parameters classifier, feature matrix,target, train_dataset, val_dataset, test_dataset
     
-    ## initial random forest classifier with full train data
-    clf = ensemble.RandomForestClassifier(n_estimators=100,random_state=9876,n_jobs=16)
+    clf = clfr ## Classifier(any of the classifier)
     clf.fit(train_ds[X], train_ds[y])
     
     ## predicting class on train ,val and test
@@ -665,545 +671,268 @@ def rf_model(X,y,train_ds, val_ds, test_ds):
     return ret_dict
 
 
-# In[54]:
+# In[123]:
 
-# with additional variables
-X=model_features_add
-y='target'
-t0_rf_add1=time.time()
-
-rf_add1=rf_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_rf_add1=time.time()
-
-delta_t_rf_add1=t1_rf_add1-t0_rf_add1
-
-print "running time in seconds : ", delta_t_rf_add1
+## model Execution function
+def model_execution(X,clfr): #paramters: feature matrix, classifier
+    y='target'
+    t_start=time.time()
+    model_result=model(clfr,X,y,train_add_model,val_add_model,test_add)
+    t_end=time.time()
+    t_diff=t_end-t_start
+    print "running time in seconds : ", t_diff ## tells the model running time in seconds
+    return model_result 
 
 
-# In[55]:
+# In[135]:
 
-print "VAL_CM:"
-print rf_add1['cf_mat_val']
-print "TRAIN_CM:"
-print rf_add1['cf_mat_train']
-print "\n"
-print rf_add1['val_met_dict']
-print "\n"
-print rf_add1['train_met_dict']
-print "\n"
-print "Train AUC:", rf_add1['train_auc']
-print "\n"
-print "Val AUC:",rf_add1['val_auc']
+## model Results printing function
+def model_results_print(model_name):
+    print "VAL_CM:"
+    print model_name['cf_mat_val']
+    print "TRAIN_CM:"
+    print model_name['cf_mat_train']
+    print "\n"
+    print model_name['val_met_dict']
+    print "\n"
+    print model_name['train_met_dict']
+    print "\n"
+    print "Train AUC:", model_name['train_auc']
+    print "\n"
+    print "Val AUC:",model_name['val_auc']
 
 
-# In[56]:
+# In[128]:
+
+rf_add1=model_execution(model_features_add,rf)
+
+
+# In[136]:
+
+model_results_print(rf_add1)
+
+
+# In[130]:
 
 rf_add1['v_imp_df']
 
 
-# In[57]:
+# In[143]:
 
 ## creating a second features from only the important variables from First features which has importance >1%
 fet_add2=list(rf_add1['v_imp_df']['v_imp_names'][rf_add1['v_imp_df']['v_imp_values']>=0.001])
+print len(fet_add2)
 
 
-# In[58]:
+# In[124]:
 
-len(fet_add2)
-
-
-# In[59]:
-
-# with additional variables reduced features based on Variable importance factor
-X=fet_add2
-y='target'
-t0_rf_add2=time.time()
-
-rf_add2=rf_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_rf_add2=time.time()
-
-delta_t_rf_add2=t1_rf_add2-t0_rf_add2
-
-print "running time in seconds : ", delta_t_rf_add2
+rf_add2=model_execution(fet_add2,rf)
 
 
-# In[60]:
+# In[137]:
 
-print "VAL_CM:"
-print rf_add2['cf_mat_val']
-print "TRAIN_CM:"
-print rf_add2['cf_mat_train']
-print "\n"
-print rf_add2['val_met_dict']
-print "\n"
-print rf_add2['train_met_dict']
-print "\n"
-print "Train AUC:", rf_add2['train_auc']
-print "\n"
-print "Val AUC:",rf_add2['val_auc']
+model_results_print(rf_add2)
 
 
-# In[61]:
+# In[142]:
 
 ## creating a third features from only the important variables from second set of features 
 fet_add3=list(rf_add2['v_imp_df']['v_imp_names'][rf_add2['v_imp_df']['v_imp_values']>=0.003])
+print len(fet_add3)
 
 
-# In[62]:
+# In[126]:
 
-len(fet_add3)
-
-
-# In[63]:
-
-# with additional variables reduced features based on Variable importance factor
-X=fet_add3
-y='target'
-t0_rf_add3=time.time()
-
-rf_add3=rf_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_rf_add3=time.time()
-
-delta_t_rf_add3=t1_rf_add3-t0_rf_add3
-
-print "running time in seconds : ", delta_t_rf_add3
+rf_add3=model_execution(fet_add3,rf)
 
 
-# In[64]:
+# In[138]:
 
-print "VAL_CM:"
-print rf_add3['cf_mat_val']
-print "TRAIN_CM:"
-print rf_add3['cf_mat_train']
-print "\n"
-print rf_add3['val_met_dict']
-print "\n"
-print rf_add3['train_met_dict']
-print "\n"
-print "Train AUC:", rf_add3['train_auc']
-print "\n"
-print "Val AUC:",rf_add3['val_auc']
+model_results_print(rf_add3)
 
 
-# ## Submission based on Random forest model
-# 
+# In[144]:
 
-# In[85]:
-
-## Final submission 
-sub_rf=pd.concat([test_add['ID'],pd.DataFrame(rf_add3['test_pred_prob'])],axis=1)
-sub_rf.columns=['ID','target']
-sub_rf.to_csv('rf_submission_1.csv',sep=',',index=None)
+ab_add1=model_execution(model_features_add,ab)
 
 
-# In[86]:
+# In[145]:
 
-## Initial submission using all variables
-sub_rf1=pd.concat([test_add['ID'],pd.DataFrame(rf_add1['test_pred_prob'])],axis=1)
-sub_rf1.columns=['ID','target']
-sub_rf1.to_csv('rf_submission_init.csv',sep=',',index=None)
+model_results_print(ab_add1)
 
 
-# In[87]:
+# In[132]:
 
-## submission based on fet2 variables
-sub_rf2=pd.concat([test_add['ID'],pd.DataFrame(rf_add2['test_pred_prob'])],axis=1)
-sub_rf2.columns=['ID','target']
-sub_rf2.to_csv('rf_submission_fet2.csv',sep=',',index=None)
+ab_add2=model_execution(fet_add2,ab)
 
 
-# ## End of submission
+# In[139]:
+
+model_results_print(ab_add2)
+
+
+# In[146]:
+
+gb_add1=model_execution(model_features_add,gb)
+
+
+# In[147]:
+
+model_results_print(gb_add1)
+
+
+# In[148]:
+
+gb_add2=model_execution(fet_add2,gb)
+
+
+# In[149]:
+
+model_results_print(gb_add2)
+
+
+# ## Submissions based on single Ensemble learners 
+
+# In[154]:
+
+def submission(filename, modelname): # filename as string, modelname
+    sub=pd.concat([test_add['ID'],pd.DataFrame(modelname['test_pred_prob'])],axis=1)
+    # renaming columns
+    sub.columns=['ID','target']
+    sub.to_csv(filename+'.csv',sep=',',index=None)
+
+
+# In[155]:
+
+## random forest submsissions
+submission('rf_submission_init',rf_add1)
+submission('rf_submission_fet2',rf_add2)
+submission('rf_submission_fet3',rf_add3)
+
+
+# In[156]:
+
+# adaboost submissions
+submission('ab_submission_init',ab_add1)
+submission('ab_submission_fet2',ab_add2)
+
+
+# In[157]:
+
+# gradient boosting Submissions
+submission('gb_submission_init',gb_add1)
+submission('gb_submission_fet2',gb_add2)
+
 
 # <!--- ! unzip sample_submission.csv.zip -->
 
-# ###----------------------------------------------------
-
-# ## ADABOOST
-
-# In[68]:
-
-# Adaboost
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import roc_curve, auc
-### putting it all together in a function for the Submission
-
-
-def ab_model(X,y,train_ds, val_ds,test_ds):
-    
-    ## initial  classifier with full train data
-    clf = AdaBoostClassifier(n_estimators=100)
-    clf.fit(train_ds[X], train_ds[y])
-    
-    ## predicting class on train ,val and test
-    train_pred_class=clf.predict(train_ds[X])
-    val_pred_class=clf.predict(val_ds[X])
-    test_pred_class=clf.predict(test_ds[X])
-
-    ## predicting probabilities on train, val  and test
-    train_pred_prob=clf.predict_proba(train_ds[X])
-    val_pred_prob=clf.predict_proba(val_ds[X])
-    test_pred_prob=clf.predict_proba(test_ds[X])
-
-
-    ##taking the probabilities for predicted class=1 (2 nd column in the array)
-    train_pred_prob=train_pred_prob[:,1]
-    val_pred_prob=val_pred_prob[:,1]
-    test_pred_prob=test_pred_prob[:,1]
-    
-    #cf table
-    cf_mat_train=pd.crosstab(train_ds[y], train_pred_class, rownames=['actual'], colnames=['preds'])
-    cf_mat_val=pd.crosstab(val_ds[y], val_pred_class, rownames=['actual'], colnames=['preds'])
-    
-    ## train metrics
-    train_err=(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0])/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0]+cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1])  ## error rate
-    train_acc=(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1])/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0]+cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1]) ## accuracy
-    train_recall =cf_mat_train.iloc[1,1]/(cf_mat_train.iloc[1,1]+cf_mat_train.iloc[1,0]) ###recall  or hit rate or tpr or sensitivity
-    train_spc=cf_mat_train.iloc[0,0]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[0,1])  ##tnr or specificity
-    train_prec=cf_mat_train.iloc[1,1]/(cf_mat_train.iloc[1,1]+cf_mat_train.iloc[0,1]) ### precision  or positive predicted value(ppv) 
-    train_npv =cf_mat_train.iloc[0,0]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,0]) ###negative predicted value
-    train_fpr =cf_mat_train.iloc[0,1]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[0,1]) ###false positive rate or fall out  
-    train_fdr =cf_mat_train.iloc[0,1]/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,1]) ###false discovery rate
-    train_fnr =cf_mat_train.iloc[1,0]/(cf_mat_train.iloc[1,0]+cf_mat_train.iloc[1,1]) ###false negative rate
-    train_f1score=(2*train_recall*train_prec)/(train_recall+train_prec)
-
-    ## val metrics
-    
-    val_err=(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0])/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0]+cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1])  ## error rate
-    val_acc=(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1])/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0]+cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1]) ## accuracy
-    val_recall =cf_mat_val.iloc[1,1]/(cf_mat_val.iloc[1,1]+cf_mat_val.iloc[1,0]) ###recall  or hit rate or tpr or sensitivity
-    val_spc=cf_mat_val.iloc[0,0]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[0,1])  ##tnr or specificity
-    val_prec=cf_mat_val.iloc[1,1]/(cf_mat_val.iloc[1,1]+cf_mat_val.iloc[0,1]) ### precision  or positive predicted value(ppv) 
-    val_npv =cf_mat_val.iloc[0,0]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,0]) ###negative predicted value
-    val_fpr =cf_mat_val.iloc[0,1]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[0,1]) ###false positive rate or fall out  
-    val_fdr =cf_mat_val.iloc[0,1]/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,1]) ###false discovery rate
-    val_fnr =cf_mat_val.iloc[1,0]/(cf_mat_val.iloc[1,0]+cf_mat_val.iloc[1,1]) ###false negative rate
-    val_f1score=(2*val_recall*val_prec)/(val_recall+val_prec)
-    
-    
-    train_met_dict={
-        "accuracy":train_acc*100
-        ,"error":train_err*100
-        ,"precision":train_prec*100
-        ,"recall":train_recall*100
-        ,"FDR":train_fdr*100
-        ,"FNR":train_fnr*100
-        ,"F1 SCORE":train_f1score*100
-    }
-
-    val_met_dict={
-        "accuracy":val_acc*100
-        ,"error":val_err*100
-        ,"precision":val_prec*100
-        ,"recall":val_recall*100
-        ,"FDR":val_fdr*100
-        ,"FNR":val_fnr*100
-        ,"F1 SCORE":val_f1score*100
-    }
-    
-
-    ## feature importance
-    feat_index = np.argsort(clf.feature_importances_)[::-1] ## sorting the indices of feature importance in decending order
-    fet_imp = clf.feature_importances_[feat_index] ##using the descending sorted index and arranging the feature importance array 
-    
-    fet_imp_names = [X[i] for i in feat_index] ## collecting the feature names from the index
-    
-    ##Putting the sorted feature importance and feature names in a dataframe
-    d = {'v_imp_names': pd.Series(fet_imp_names),
-         'v_imp_values': pd.Series(fet_imp)
-        }
-    v_imp_df = pd.DataFrame(d)
-    
-    #train AUC
-    fpr_train, tpr_train, thresholds_train = roc_curve(train_ds[y], train_pred_prob)
-    roc_auc_train = auc(fpr_train, tpr_train)
-
-    #val AUC
-    fpr_val, tpr_val, thresholds_val = roc_curve(val_ds[y], val_pred_prob)
-    roc_auc_val = auc(fpr_val, tpr_val)
-    
-    
-    ret_dict={"train_pred_class":train_pred_class
-              ,"test_pred_class":test_pred_class
-              ,"val_pred_class":val_pred_class
-              ,"train_pred_prob":train_pred_prob
-              ,"test_pred_prob":test_pred_prob
-              ,"val_pred_prob":val_pred_prob
-              ,"cf_mat_train":cf_mat_train
-              ,"cf_mat_val":cf_mat_val
-              ,"train_met_dict":train_met_dict
-              ,"val_met_dict":val_met_dict
-              ,"v_imp_df":v_imp_df
-              ,"train_auc":roc_auc_train
-              ,"train_fpr_auc":fpr_train
-              ,"train_tpr_auc":tpr_train
-              ,"train_thresholds_auc":thresholds_train
-              ,"val_auc":roc_auc_val
-              ,"val_fpr_auc":fpr_val
-              ,"val_tpr_auc":tpr_val
-              ,"val_thresholds_auc":thresholds_val
-             }
-    return ret_dict
+# ## Submission based on average of ensemble Learners
 
+# In[104]:
 
-# In[69]:
-
-# with additional variables reduced features based on Variable importance factor
-X=fet_add2
-y='target'
-t0_ab_add2=time.time()
-
-ab_add2=ab_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_ab_add2=time.time()
-
-delta_t_ab_add2=t1_ab_add2-t0_ab_add2
-
-print "running time in seconds : ", delta_t_ab_add2
-
-
-# In[70]:
-
-print "VAL_CM:"
-print ab_add2['cf_mat_val']
-print "TRAIN_CM:"
-print ab_add2['cf_mat_train']
-print "\n"
-print ab_add2['val_met_dict']
-print "\n"
-print ab_add2['train_met_dict']
-print "\n"
-print "Train AUC:", ab_add2['train_auc']
-print "\n"
-print "Val AUC:",ab_add2['val_auc']
-
-
-# In[74]:
-
-## submission based on fet2 variables
-sub_ab2=pd.concat([test_add['ID'],pd.DataFrame(ab_add2['test_pred_prob'])],axis=1)
-sub_ab2.columns=['ID','target']
-sub_ab2.to_csv('ab_submission_fet2.csv',sep=',',index=None)
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# ## GRADIENT BOOSTING
-
-# In[75]:
-
-# Gardient Boosting
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.metrics import roc_curve, auc
-### putting it all together in a function for the Submission
-
-
-def gb_model(X,y,train_ds, val_ds,test_ds):
-    
-    ## initial  classifier with full train data
-    clf = GradientBoostingClassifier(n_estimators=100)
-    clf.fit(train_ds[X], train_ds[y])
-    
-    ## predicting class on train ,val and test
-    train_pred_class=clf.predict(train_ds[X])
-    val_pred_class=clf.predict(val_ds[X])
-    test_pred_class=clf.predict(test_ds[X])
-
-    ## predicting probabilities on train, val  and test
-    train_pred_prob=clf.predict_proba(train_ds[X])
-    val_pred_prob=clf.predict_proba(val_ds[X])
-    test_pred_prob=clf.predict_proba(test_ds[X])
-
-
-    ##taking the probabilities for predicted class=1 (2 nd column in the array)
-    train_pred_prob=train_pred_prob[:,1]
-    val_pred_prob=val_pred_prob[:,1]
-    test_pred_prob=test_pred_prob[:,1]
-    
-    #cf table
-    cf_mat_train=pd.crosstab(train_ds[y], train_pred_class, rownames=['actual'], colnames=['preds'])
-    cf_mat_val=pd.crosstab(val_ds[y], val_pred_class, rownames=['actual'], colnames=['preds'])
-    
-    ## train metrics
-    train_err=(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0])/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0]+cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1])  ## error rate
-    train_acc=(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1])/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,0]+cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,1]) ## accuracy
-    train_recall =cf_mat_train.iloc[1,1]/(cf_mat_train.iloc[1,1]+cf_mat_train.iloc[1,0]) ###recall  or hit rate or tpr or sensitivity
-    train_spc=cf_mat_train.iloc[0,0]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[0,1])  ##tnr or specificity
-    train_prec=cf_mat_train.iloc[1,1]/(cf_mat_train.iloc[1,1]+cf_mat_train.iloc[0,1]) ### precision  or positive predicted value(ppv) 
-    train_npv =cf_mat_train.iloc[0,0]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[1,0]) ###negative predicted value
-    train_fpr =cf_mat_train.iloc[0,1]/(cf_mat_train.iloc[0,0]+cf_mat_train.iloc[0,1]) ###false positive rate or fall out  
-    train_fdr =cf_mat_train.iloc[0,1]/(cf_mat_train.iloc[0,1]+cf_mat_train.iloc[1,1]) ###false discovery rate
-    train_fnr =cf_mat_train.iloc[1,0]/(cf_mat_train.iloc[1,0]+cf_mat_train.iloc[1,1]) ###false negative rate
-    train_f1score=(2*train_recall*train_prec)/(train_recall+train_prec)
-
-    ## val metrics
-    
-    val_err=(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0])/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0]+cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1])  ## error rate
-    val_acc=(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1])/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,0]+cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,1]) ## accuracy
-    val_recall =cf_mat_val.iloc[1,1]/(cf_mat_val.iloc[1,1]+cf_mat_val.iloc[1,0]) ###recall  or hit rate or tpr or sensitivity
-    val_spc=cf_mat_val.iloc[0,0]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[0,1])  ##tnr or specificity
-    val_prec=cf_mat_val.iloc[1,1]/(cf_mat_val.iloc[1,1]+cf_mat_val.iloc[0,1]) ### precision  or positive predicted value(ppv) 
-    val_npv =cf_mat_val.iloc[0,0]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[1,0]) ###negative predicted value
-    val_fpr =cf_mat_val.iloc[0,1]/(cf_mat_val.iloc[0,0]+cf_mat_val.iloc[0,1]) ###false positive rate or fall out  
-    val_fdr =cf_mat_val.iloc[0,1]/(cf_mat_val.iloc[0,1]+cf_mat_val.iloc[1,1]) ###false discovery rate
-    val_fnr =cf_mat_val.iloc[1,0]/(cf_mat_val.iloc[1,0]+cf_mat_val.iloc[1,1]) ###false negative rate
-    val_f1score=(2*val_recall*val_prec)/(val_recall+val_prec)
-    
-    
-    train_met_dict={
-        "accuracy":train_acc*100
-        ,"error":train_err*100
-        ,"precision":train_prec*100
-        ,"recall":train_recall*100
-        ,"FDR":train_fdr*100
-        ,"FNR":train_fnr*100
-        ,"F1 SCORE":train_f1score*100
-    }
-
-    val_met_dict={
-        "accuracy":val_acc*100
-        ,"error":val_err*100
-        ,"precision":val_prec*100
-        ,"recall":val_recall*100
-        ,"FDR":val_fdr*100
-        ,"FNR":val_fnr*100
-        ,"F1 SCORE":val_f1score*100
-    }
-    
-
-    ## feature importance
-    feat_index = np.argsort(clf.feature_importances_)[::-1] ## sorting the indices of feature importance in decending order
-    fet_imp = clf.feature_importances_[feat_index] ##using the descending sorted index and arranging the feature importance array 
-    
-    fet_imp_names = [X[i] for i in feat_index] ## collecting the feature names from the index
-    
-    ##Putting the sorted feature importance and feature names in a dataframe
-    d = {'v_imp_names': pd.Series(fet_imp_names),
-         'v_imp_values': pd.Series(fet_imp)
-        }
-    v_imp_df = pd.DataFrame(d)
-    
-    #train AUC
-    fpr_train, tpr_train, thresholds_train = roc_curve(train_ds[y], train_pred_prob)
-    roc_auc_train = auc(fpr_train, tpr_train)
-
-    #val AUC
-    fpr_val, tpr_val, thresholds_val = roc_curve(val_ds[y], val_pred_prob)
-    roc_auc_val = auc(fpr_val, tpr_val)
-    
-    
-    ret_dict={"train_pred_class":train_pred_class
-              ,"test_pred_class":test_pred_class
-              ,"val_pred_class":val_pred_class
-              ,"train_pred_prob":train_pred_prob
-              ,"test_pred_prob":test_pred_prob
-              ,"val_pred_prob":val_pred_prob
-              ,"cf_mat_train":cf_mat_train
-              ,"cf_mat_val":cf_mat_val
-              ,"train_met_dict":train_met_dict
-              ,"val_met_dict":val_met_dict
-              ,"v_imp_df":v_imp_df
-              ,"train_auc":roc_auc_train
-              ,"train_fpr_auc":fpr_train
-              ,"train_tpr_auc":tpr_train
-              ,"train_thresholds_auc":thresholds_train
-              ,"val_auc":roc_auc_val
-              ,"val_fpr_auc":fpr_val
-              ,"val_tpr_auc":tpr_val
-              ,"val_thresholds_auc":thresholds_val
-             }
-    return ret_dict
-
-
-# In[ ]:
-
-# with additional variables
-X=model_features_add
-y='target'
-t0_gb_add1=time.time()
-
-gb_add1=gb_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_gb_add1=time.time()
-
-delta_t_gb_add1=t1_gb_add1-t0_gb_add1
-
-print "running time in seconds : ", delta_t_gb_add1
-
-
-# In[ ]:
-
-print "VAL_CM:"
-print gb_add1['cf_mat_val']
-print "TRAIN_CM:"
-print gb_add1['cf_mat_train']
-print "\n"
-print gb_add1['val_met_dict']
-print "\n"
-print gb_add1['train_met_dict']
-print "\n"
-print "Train AUC:", gb_add1['train_auc']
-print "\n"
-print "Val AUC:",gb_add1['val_auc']
-
-
-# In[81]:
-
-## submission based on initial + additional variables
-sub_gb1=pd.concat([test_add['ID'],pd.DataFrame(gb_add1['test_pred_prob'])],axis=1)
-sub_gb1.columns=['ID','target']
-sub_gb1.to_csv('gb_submission_init.csv',sep=',',index=None)
-
-
-# In[76]:
-
-# with additional varigbles reduced features based on Varigble importance factor
-X=fet_add2
-y='target'
-t0_gb_add2=time.time()
-
-gb_add2=gb_model(X,y,train_add_model,val_add_model,test_add)
-
-t1_gb_add2=time.time()
-
-delta_t_gb_add2=t1_gb_add2-t0_gb_add2
-
-print "running time in seconds : ", delta_t_gb_add2
-
-
-# In[77]:
-
-print "VAL_CM:"
-print gb_add2['cf_mat_val']
-print "TRAIN_CM:"
-print gb_add2['cf_mat_train']
-print "\n"
-print gb_add2['val_met_dict']
-print "\n"
-print gb_add2['train_met_dict']
-print "\n"
-print "Train AUC:", gb_add2['train_auc']
-print "\n"
-print "Val AUC:",gb_add2['val_auc']
-
-
-# In[78]:
-
-## submission based on fet2 variables
-sub_gb2=pd.concat([test_add['ID'],pd.DataFrame(gb_add2['test_pred_prob'])],axis=1)
-sub_gb2.columns=['ID','target']
-sub_gb2.to_csv('gb_submission_fet2.csv',sep=',',index=None)
+# Average of Ensenmble models of gb1,gb2,rf1 and ab2
+sub_mean_gb1_gb2_rf1_ab2=pd.concat([sub_gb1
+               ,sub_gb2[['target']]
+               ,sub_rf1[['target']]
+               ,sub_ab2[['target']]
+              ,],axis=1)
 
+
+# In[106]:
+
+sub_mean_gb1_gb2_rf1_ab2.shape , sub_mean_gb1_gb2_rf1_ab2.columns
+
+
+# In[107]:
+
+sub_mean_gb1_gb2_rf1_ab2.columns=['ID','target_gb1','target_gb2','target_rf1','target_ab2']
+
+
+# In[108]:
+
+sub_mean_gb1_gb2_rf1_ab2.columns
+
+
+# In[109]:
+
+sub_mean_gb1_gb2_rf1_ab2['fin_target']=(sub_mean_gb1_gb2_rf1_ab2['target_gb1'] + sub_mean_gb1_gb2_rf1_ab2['target_gb2']+sub_mean_gb1_gb2_rf1_ab2['target_rf1']+sub_mean_gb1_gb2_rf1_ab2['target_ab2'])/4
+
+
+# In[110]:
+
+sub_mean_4_ensemble=sub_mean_gb1_gb2_rf1_ab2[['ID','fin_target']]
+
+
+# In[114]:
+
+sub_mean_gb1_gb2_rf1_ab2.head(5)
+
+
+# In[112]:
+
+sub_mean_4_ensemble.columns =['ID','target']
+
+
+# In[115]:
+
+sub_mean_4_ensemble.to_csv('mean_gb1_gb2_rf1_ab2_submission.csv',sep=',',index=None)
+
+
+# In[89]:
+
+# Average of Ensenmble models of rf1,gb1 an gb2
+sub_mean_gb1_gb2_rf1=pd.merge(sub_gb1
+                  ,pd.merge(sub_gb2
+                            ,sub_rf1
+                            ,left_on='ID'
+                            ,right_on='ID'
+                            ,how='inner')
+                 ,left_on='ID'
+                 ,right_on='ID'
+                 ,how='inner')
+
+
+# In[91]:
+
+sub_mean_gb1_gb2_rf1.shape, sub_mean_gb1_gb2_rf1.columns
+
+
+# In[92]:
+
+sub_mean_gb1_gb2_rf1['fin_target']=(sub_mean_gb1_gb2_rf1['target'] + sub_mean_gb1_gb2_rf1['target_x']+sub_mean_gb1_gb2_rf1['target_y'])/3
+
+
+# In[93]:
+
+sub_mean_gb1_gb2_rf1.columns
+
+
+# In[94]:
+
+sub_mean_gb1_gb2_rf1.head(5)
+
+
+# In[95]:
+
+sub_mean=sub_mean_gb1_gb2_rf1[['ID','fin_target']]
+
+
+# In[101]:
+
+sub_mean.rename(columns= {'fin_target':'target'}, inplace=True)
+
+
+# In[102]:
+
+sub_mean.shape, sub_mean.columns
+
+
+# In[103]:
+
+sub_mean.to_csv('mean_gb1_gb2_rf1_submission.csv',sep=',',index=None)
+
+
+# ##------------------------------------END-------------------------
 
 # ## EXTRAS - ROUGH WORK
 
