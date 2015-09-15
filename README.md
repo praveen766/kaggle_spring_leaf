@@ -1,6 +1,6 @@
 # Kaggle Spring Leaf Marketing Challenge
 
-##souce: 
+##Source: 
 https://www.kaggle.com/c/springleaf-marketing-response
 
 ##Problem Statement:
